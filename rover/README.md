@@ -2,6 +2,8 @@
 
 ESP32 tank drive over Wi‑Fi — remote only, low motor power to reduce brownouts.
 
+Project overview and Wyde pitch deck: [../README.md](../README.md) · [../docs/Wyde.pdf](../docs/Wyde.pdf).
+
 ## Flash
 
 1. PlatformIO env **`freenove_esp32`** (or Arduino IDE → `rover/rover.ino`).
