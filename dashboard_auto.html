@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rover — Autonomous Monitor</title>
+  <style>
+    :root {
+      --bg: #070b12;
+      --bg-panel: rgba(12, 20, 34, 0.82);
+      --border: rgba(0, 212, 255, 0.18);
+      --text: #e8eef7;
+      --muted: #6b7d96;
+      --accent: #00d4ff;
+      --green: #00e676;
+      --red: #ff3d5a;
+      --amber: #ffb020;
+      --glow: rgba(0, 212, 255, 0.35);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black, transparent);
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(0, 212, 255, 0.08), transparent 70%);
+      pointer-events: none;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 20px 24px 28px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 16px;
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand { display: flex; align-items: center; gap: 14px; }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), transparent);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 0 24px var(--glow);
+    }
+
+    .brand-icon svg { width: 22px; height: 22px; fill: var(--accent); }
+
+    .brand h1 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .brand p {
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .conn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--bg-panel);
+    }
+
+    .conn-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 8px var(--red);
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+
+    .conn-dot.live {
+      background: var(--green);
+      box-shadow: 0 0 10px var(--green);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.55; }
+    }
+
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 720px) {
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .stat {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      backdrop-filter: blur(8px);
+    }
+
+    .stat-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .stat-value.drive-forward { color: var(--green); }
+    .stat-value.drive-reverse { color: var(--amber); }
+    .stat-value.drive-turn { color: var(--amber); }
+    .stat-value.drive-stop { color: var(--muted); }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 220px 1fr 220px;
+      gap: 16px;
+      align-items: stretch;
+      min-height: 420px;
+    }
+
+    @media (max-width: 900px) {
+      .main-grid { grid-template-columns: 1fr; min-height: auto; }
+    }
+
+    .side-panel { display: flex; flex-direction: column; gap: 14px; }
+
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      backdrop-filter: blur(8px);
+    }
+
+    .panel-title {
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .fsm-group { margin-bottom: 16px; }
+    .fsm-group:last-child { margin-bottom: 0; }
+
+    .fsm-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border: 1px solid transparent;
+      transition: all 0.25s ease;
+    }
+
+    .pill.green { background: rgba(0, 230, 118, 0.12); color: var(--green); border-color: rgba(0, 230, 118, 0.35); }
+    .pill.red { background: rgba(255, 61, 90, 0.12); color: var(--red); border-color: rgba(255, 61, 90, 0.35); }
+    .pill.amber { background: rgba(255, 176, 32, 0.12); color: var(--amber); border-color: rgba(255, 176, 32, 0.35); }
+    .pill.gray { background: rgba(107, 125, 150, 0.12); color: var(--muted); border-color: rgba(107, 125, 150, 0.3); }
+
+    .dist-readout { display: flex; flex-direction: column; gap: 14px; }
+
+    .dist-item .dist-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .dist-item .dist-row span:first-child {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .dist-item .dist-row span:last-child {
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .dist-bar-wrap {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .dist-bar {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.25s ease, background 0.25s ease;
+    }
+
+    .viz-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .viz-panel::before {
+      content: "";
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      border: 1px dashed rgba(0, 212, 255, 0.12);
+      pointer-events: none;
+    }
+
+    .viz-panel::after {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: 1px dashed rgba(0, 212, 255, 0.08);
+      pointer-events: none;
+    }
+
+    #rover-svg {
+      width: min(100%, 420px);
+      height: auto;
+      filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.15));
+    }
+
+    .arc-path { transition: stroke-dashoffset 0.3s ease, stroke 0.3s ease; }
+    .rover-body { fill: #141e2e; stroke: var(--accent); stroke-width: 1.5; }
+    .rover-core { fill: rgba(0, 212, 255, 0.2); }
+    .sensor-dot { fill: var(--accent); }
+
+    .drive-arrow {
+      fill: var(--green);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      transform-origin: 200px 200px;
+    }
+
+    .drive-arrow.visible { opacity: 0.9; }
+
+    @keyframes drive-pulse {
+      0%, 100% { opacity: 0.55; }
+      50% { opacity: 1; }
+    }
+
+    .drive-arrow.animating { animation: drive-pulse 0.8s ease-in-out infinite; }
+
+    @keyframes arc-danger {
+      0%, 100% { stroke-opacity: 1; }
+      50% { stroke-opacity: 0.45; }
+    }
+
+    .arc-path.danger { animation: arc-danger 0.7s ease-in-out infinite; }
+
+    .legend-text { font-size: 0.72rem; color: var(--muted); line-height: 1.55; }
+
+    .log-panel { display: flex; flex-direction: column; max-height: 180px; }
+
+    .log-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .log-count {
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+
+    .log-scroll {
+      flex: 1;
+      overflow-y: auto;
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      font-size: 0.75rem;
+      line-height: 1.55;
+      padding-right: 6px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 212, 255, 0.3) transparent;
+    }
+
+    .log-scroll::-webkit-scrollbar { width: 5px; }
+    .log-scroll::-webkit-scrollbar-thumb { background: rgba(0, 212, 255, 0.25); border-radius: 3px; }
+
+    .log-entry {
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      display: flex;
+      gap: 12px;
+      animation: log-in 0.35s ease;
+    }
+
+    @keyframes log-in {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .log-time { color: var(--muted); flex-shrink: 0; min-width: 72px; }
+    .log-msg { color: var(--text); word-break: break-word; }
+
+    .error-banner {
+      display: none;
+      padding: 10px 14px;
+      background: rgba(255, 61, 90, 0.1);
+      border: 1px solid rgba(255, 61, 90, 0.35);
+      border-radius: 10px;
+      font-size: 0.8rem;
+      color: var(--red);
+    }
+
+    .error-banner.show { display: block; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2L4 7v10l8 5 8-5V7L12 2zm0 2.2l6 3.75v7.5L12 19.3 6 15.45v-7.5L12 4.2z"/></svg>
+        </div>
+        <div>
+          <h1>Autonomous Monitor</h1>
+          <p>ESP32 Rover · Mission Control</p>
+        </div>
+      </div>
+      <div class="conn">
+        <span class="conn-dot" id="conn-dot"></span>
+        <span id="conn-text">Connecting…</span>
+      </div>
+    </header>
+
+    <div class="error-banner" id="error-banner"></div>
+
+    <div class="stats-bar">
+      <div class="stat">
+        <div class="stat-label">Uptime</div>
+        <div class="stat-value" id="stat-uptime">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Speed</div>
+        <div class="stat-value" id="stat-speed">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Drive</div>
+        <div class="stat-value" id="stat-drive">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Poll Rate</div>
+        <div class="stat-value">300 ms</div>
+      </div>
+    </div>
+
+    <div class="main-grid">
+      <aside class="side-panel">
+        <div class="panel">
+          <div class="panel-title">Finite State</div>
+          <div class="fsm-group">
+            <div class="fsm-label">Collision</div>
+            <span class="pill gray" id="pill-collision">—</span>
+          </div>
+          <div class="fsm-group">
+            <div class="fsm-label">Navigation</div>
+            <span class="pill gray" id="pill-navigation">—</span>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Distance (cm)</div>
+          <div class="dist-readout" id="dist-readout"></div>
+        </div>
+      </aside>
+
+      <div class="panel viz-panel">
+        <svg id="rover-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="arcGradSafe" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#00e676"/><stop offset="100%" stop-color="#00d4ff"/>
+            </linearGradient>
+            <linearGradient id="arcGradWarn" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#ffb020"/><stop offset="100%" stop-color="#ff3d5a"/>
+            </linearGradient>
+          </defs>
+          <path class="arc-path" id="arc-front" fill="none" stroke="url(#arcGradSafe)" stroke-width="14" stroke-linecap="round"
+            d="M 140 72 A 120 120 0 0 1 260 72" stroke-dasharray="188" stroke-dashoffset="188"/>
+          <path class="arc-path" id="arc-left" fill="none" stroke="url(#arcGradSafe)" stroke-width="14" stroke-linecap="round"
+            d="M 72 140 A 120 120 0 0 0 72 260" stroke-dasharray="188" stroke-dashoffset="188"/>
+          <path class="arc-path" id="arc-right" fill="none" stroke="url(#arcGradSafe)" stroke-width="14" stroke-linecap="round"
+            d="M 328 140 A 120 120 0 0 1 328 260" stroke-dasharray="188" stroke-dashoffset="188"/>
+          <text x="200" y="48" text-anchor="middle" fill="#6b7d96" font-family="ui-monospace, monospace" font-size="11" letter-spacing="1">FRONT</text>
+          <text x="36" y="204" text-anchor="middle" fill="#6b7d96" font-family="ui-monospace, monospace" font-size="11" letter-spacing="1" transform="rotate(-90 36 204)">LEFT</text>
+          <text x="364" y="204" text-anchor="middle" fill="#6b7d96" font-family="ui-monospace, monospace" font-size="11" letter-spacing="1" transform="rotate(90 364 204)">RIGHT</text>
+          <text id="lbl-front" x="200" y="28" text-anchor="middle" fill="#00d4ff" font-family="ui-monospace,monospace" font-size="13" font-weight="600">—</text>
+          <text id="lbl-left" x="18" y="206" text-anchor="middle" fill="#00d4ff" font-family="ui-monospace,monospace" font-size="13" font-weight="600">—</text>
+          <text id="lbl-right" x="382" y="206" text-anchor="middle" fill="#00d4ff" font-family="ui-monospace,monospace" font-size="13" font-weight="600">—</text>
+          <rect class="rover-body" x="155" y="155" width="90" height="90" rx="14"/>
+          <rect class="rover-core" x="168" y="168" width="64" height="64" rx="8"/>
+          <circle class="sensor-dot" cx="200" cy="158" r="4"/>
+          <circle class="sensor-dot" cx="158" cy="200" r="4"/>
+          <circle class="sensor-dot" cx="242" cy="200" r="4"/>
+          <polygon class="drive-arrow" id="drive-arrow" points="200,178 188,210 212,210"/>
+          <text id="lbl-drive-mode" x="200" y="278" text-anchor="middle" fill="#6b7d96" font-family="ui-monospace,monospace" font-size="10" letter-spacing="1.5">STANDBY</text>
+        </svg>
+      </div>
+
+      <aside class="side-panel">
+        <div class="panel" style="flex:1">
+          <div class="panel-title">Sensor legend</div>
+          <p class="legend-text">Arc fill shows clearance (100 cm max). Colour shifts warm below 40 cm. Front arc pulses red below 25 cm.</p>
+        </div>
+      </aside>
+    </div>
+
+    <div class="panel log-panel">
+      <div class="log-header">
+        <div class="panel-title" style="margin:0">Event log</div>
+        <span class="log-count" id="log-count">0 events</span>
+      </div>
+      <div class="log-scroll" id="log-scroll"></div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "http://192.168.4.1";
+    const POLL_MS = 300;
+    const MAX_DIST = 100;
+    const MAX_LOG = 120;
+
+    const $ = (id) => document.getElementById(id);
+
+    let lastMessage = "";
+    let logEntries = [];
+    let connected = false;
+    let failStreak = 0;
+
+    function formatUptime(ms) {
+      const s = Math.floor(ms / 1000);
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const sec = s % 60;
+      if (h > 0) return `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+      return `${m}:${String(sec).padStart(2, "0")}`;
+    }
+
+    function formatDrive(drive) {
+      return (drive || "unknown").replace(/_/g, " ").toUpperCase();
+    }
+
+    function driveClass(drive) {
+      if (drive === "forward") return "drive-forward";
+      if (drive === "reverse") return "drive-reverse";
+      if (drive === "turn_left" || drive === "turn_right") return "drive-turn";
+      return "drive-stop";
+    }
+
+    function fsmColor(kind, state) {
+      if (kind === "collision") {
+        if (state === "idle") return "green";
+        if (state === "stop" || state === "evaluate") return "red";
+        if (state === "turn" || state === "resume") return "amber";
+      } else {
+        if (state === "wander") return "green";
+        if (state === "seek_wall" || state === "correct_left" || state === "correct_right") return "amber";
+      }
+      return "gray";
+    }
+
+    function distColor(cm) {
+      if (cm < 25) return "#ff3d5a";
+      if (cm < 40) return "#ffb020";
+      if (cm < 70) return "#00d4ff";
+      return "#00e676";
+    }
+
+    function setPill(el, state) {
+      const kind = el.id.includes("collision") ? "collision" : "navigation";
+      const color = fsmColor(kind, state);
+      el.className = "pill " + color;
+      el.textContent = (state || "—").replace(/_/g, " ");
+    }
+
+    function updateArc(pathEl, labelEl, cm, isFront) {
+      const len = 188;
+      const ratio = Math.min(Math.max(cm / MAX_DIST, 0), 1);
+      const offset = len * (1 - ratio);
+      pathEl.setAttribute("stroke-dashoffset", offset.toFixed(1));
+      pathEl.setAttribute("stroke", distColor(cm));
+      labelEl.textContent = cm.toFixed(1);
+      pathEl.classList.toggle("danger", isFront && cm < 25);
+    }
+
+    function updateDriveArrow(drive) {
+      const arrow = $("drive-arrow");
+      const label = $("lbl-drive-mode");
+      const rotations = {
+        forward: 0,
+        reverse: 180,
+        turn_left: -90,
+        turn_right: 90,
+        stop: 0
+      };
+      const moving = drive && drive !== "stop";
+      arrow.classList.toggle("visible", moving);
+      arrow.classList.toggle("animating", moving);
+      arrow.setAttribute("transform", `rotate(${rotations[drive] ?? 0} 200 200)`);
+      arrow.style.fill = drive === "reverse" ? "#ffb020" : drive === "stop" ? "#6b7d96" : "#00e676";
+      label.textContent = formatDrive(drive);
+    }
+
+    function renderDistReadout(front, left, right) {
+      const data = [
+        ["Front", front],
+        ["Left", left],
+        ["Right", right]
+      ];
+      $("dist-readout").innerHTML = data.map(([name, cm]) => {
+        const pct = Math.min(100, (cm / MAX_DIST) * 100);
+        return `<div class="dist-item">
+          <div class="dist-row"><span>${name}</span><span style="color:${distColor(cm)}">${cm.toFixed(1)}</span></div>
+          <div class="dist-bar-wrap"><div class="dist-bar" style="width:${pct}%;background:${distColor(cm)}"></div></div>
+        </div>`;
+      }).join("");
+    }
+
+    function appendLog(message, uptimeMs) {
+      if (!message || message === lastMessage) return;
+      lastMessage = message;
+      const time = formatUptime(uptimeMs);
+      logEntries.unshift({ time, message });
+      if (logEntries.length > MAX_LOG) logEntries.length = MAX_LOG;
+
+      const scroll = $("log-scroll");
+      scroll.innerHTML = logEntries.map(e =>
+        `<div class="log-entry"><span class="log-time">T+${e.time}</span><span class="log-msg">${escapeHtml(e.message)}</span></div>`
+      ).join("");
+      $("log-count").textContent = `${logEntries.length} event${logEntries.length === 1 ? "" : "s"}`;
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function setConnection(ok, errMsg) {
+      connected = ok;
+      $("conn-dot").classList.toggle("live", ok);
+      $("conn-text").textContent = ok ? "Live · 192.168.4.1" : "Offline";
+      const banner = $("error-banner");
+      if (!ok && errMsg) {
+        banner.textContent = errMsg;
+        banner.classList.add("show");
+      } else {
+        banner.classList.remove("show");
+      }
+    }
+
+    function applyStatus(d) {
+      $("stat-uptime").textContent = formatUptime(d.uptime_ms);
+      $("stat-speed").textContent = d.speed;
+      const driveEl = $("stat-drive");
+      driveEl.textContent = formatDrive(d.drive);
+      driveEl.className = "stat-value " + driveClass(d.drive);
+
+      setPill($("pill-collision"), d.collision);
+      setPill($("pill-navigation"), d.navigation);
+
+      updateArc($("arc-front"), $("lbl-front"), d.front_cm, true);
+      updateArc($("arc-left"), $("lbl-left"), d.left_cm, false);
+      updateArc($("arc-right"), $("lbl-right"), d.right_cm, false);
+      updateDriveArrow(d.drive);
+      renderDistReadout(d.front_cm, d.left_cm, d.right_cm);
+      appendLog(d.message, d.uptime_ms);
+    }
+
+    async function poll() {
+      try {
+        const res = await fetch(`${API_BASE}/status`, { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        failStreak = 0;
+        setConnection(true);
+        applyStatus(data);
+      } catch (e) {
+        failStreak++;
+        if (failStreak >= 2) {
+          setConnection(false, `Cannot reach rover at ${API_BASE}/status — join Wi‑Fi AP RoverTelemetry and ensure CORS is enabled if opening from file://`);
+        }
+      }
+    }
+
+    poll();
+    setInterval(poll, POLL_MS);
+  </script>
+</body>
+</html>
