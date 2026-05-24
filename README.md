@@ -101,15 +101,4 @@ Details and tuning: [rover/README.md](rover/README.md).
 
 Ultrasonic and full autonomy align with the [Wyde.pdf](docs/Wyde.pdf) vision; wire them back in when you extend this baseline.
 
----
 
-## Credits
-
-- **Wyde** concept and slides: **Cizor** — [docs/Wyde.pdf](docs/Wyde.pdf) (template attribution on slide 8: Slidesgo / Flaticon / Freepik).
-- Firmware and hardware bring-up: this hackathon / learning repo.
-
----
-
-## License
-
-Add a license file if you plan to open-source the project publicly; until then, treat the repo as project coursework / team work.
