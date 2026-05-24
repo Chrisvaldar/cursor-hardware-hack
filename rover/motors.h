@@ -2,15 +2,12 @@
 #define ROVER_MOTORS_H
 
 #include <Arduino.h>
-#include "types.h"
 
 void motorsInit();
-void motorsForward();
-void motorsReverse();
-void motorsTurnLeft();
-void motorsTurnRight();
 void motorsStop();
-void motorsSetSpeed(uint8_t duty);
-void motorsApply(DriveCommand cmd, uint8_t speed);
+void motorsForward(uint8_t speed);
+void motorsBack(uint8_t speed);
+void motorsLeft(uint8_t speed);
+void motorsRight(uint8_t speed);
 
 #endif

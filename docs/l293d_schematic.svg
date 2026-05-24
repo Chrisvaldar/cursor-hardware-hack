@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 920" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <style>
+      .title { font: bold 22px sans-serif; fill: #e8eef7; }
+      .subtitle { font: 13px sans-serif; fill: #8aa0bc; }
+      .label { font: 12px sans-serif; fill: #c8d4e8; }
+      .small { font: 10px sans-serif; fill: #8aa0bc; }
+      .pin { font: 10px monospace; fill: #00d4ff; }
+      .box { fill: #141e2e; stroke: #00d4ff; stroke-width: 2; rx: 8; }
+      .chip { fill: #1a2438; stroke: #ffb020; stroke-width: 2; rx: 6; }
+      .motor { fill: #122018; stroke: #00e676; stroke-width: 2; rx: 20; }
+      .pwr5 { stroke: #ff3d5a; stroke-width: 2; fill: none; }
+      .pwr12 { stroke: #ffb020; stroke-width: 2; fill: none; }
+      .gnd { stroke: #6b7d96; stroke-width: 2; fill: none; }
+      .sig { stroke: #00d4ff; stroke-width: 1.5; fill: none; }
+      .note { fill: #0a1018; stroke: #334; stroke-width: 1; rx: 6; }
+    </style>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#00d4ff"/>
+    </marker>
+  </defs>
+
+  <!-- background -->
+  <rect width="1200" height="920" fill="#070b12"/>
+  <text x="40" y="42" class="title">ESP32 + 2◊ L293D  4 motor rover</text>
+  <text x="40" y="64" class="subtitle">Matches rover/config.h ∑ Open in browser ∑ Print for bench wiring</text>
+
+  <!-- ESP32 -->
+  <rect x="40" y="100" width="200" height="320" class="box"/>
+  <text x="140" y="130" class="label" text-anchor="middle" font-weight="bold">ESP32 Dev Board</text>
+  <text x="60" y="160" class="small">Logic 3.3 V GPIO í L293D IN/EN</text>
+  <text x="60" y="180" class="small">GND í common ground rail</text>
+  <text x="60" y="200" class="small">5 V pin í L293D VCC (pin 8)</text>
+  <text x="60" y="230" class="pin">GPIO14 í U1 EN1 (HW0 PWM)</text>
+  <text x="60" y="250" class="pin">GPIO26 í U1 IN1  (HW0 A)</text>
+  <text x="60" y="270" class="pin">GPIO27 í U1 IN2  (HW0 B)</text>
+  <text x="60" y="300" class="pin">GPIO12 í U1 EN2 (HW1 PWM)</text>
+  <text x="60" y="320" class="pin">GPIO32 í U1 IN4  (HW1 A)</text>
+  <text x="60" y="340" class="pin">GPIO33 í U1 IN3  (HW1 B)</text>
+  <text x="60" y="370" class="pin">GPIO25 í U2 EN1 (HW2 PWM)</text>
+  <text x="60" y="390" class="pin">GPIO18 í U2 IN1  (HW2 A)</text>
+
+  <!-- ESP32 continued -->
+  <rect x="260" y="100" width="200" height="180" class="box" fill="#101828"/>
+  <text x="360" y="130" class="label" text-anchor="middle">ESP32 (cont.)</text>
+  <text x="280" y="160" class="pin">GPIO19 í U2 IN2  (HW2 B)</text>
+  <text x="280" y="180" class="pin">GPIO4  í U2 EN2 (HW3 PWM)</text>
+  <text x="280" y="200" class="pin">GPIO21 í U2 IN4  (HW3 A)</text>
+  <text x="280" y="220" class="pin">GPIO23 í U2 IN3  (HW3 B)</text>
+  <text x="280" y="250" class="pin">GPIO22 í Servo signal (opt.)</text>
+
+  <!-- L293D U1 -->
+  <rect x="520" y="90" width="240" height="340" class="chip"/>
+  <text x="640" y="118" class="label" text-anchor="middle" font-weight="bold">U1  L293D #1</text>
+  <text x="540" y="142" class="small">Front motors (HW0 + HW1)</text>
+  <!-- DIP symbol -->
+  <rect x="580" y="160" width="120" height="240" fill="#0f1624" stroke="#ffb020" rx="4"/>
+  <text x="640" y="185" class="small" text-anchor="middle">pin 1 EN1 ê GPIO14</text>
+  <text x="640" y="205" class="small" text-anchor="middle">pin 2 IN1 ê GPIO26</text>
+  <text x="640" y="225" class="small" text-anchor="middle">pin 3 OUT1 í M0+</text>
+  <text x="640" y="245" class="small" text-anchor="middle">pin 6 OUT2 í M0</text>
+  <text x="640" y="265" class="small" text-anchor="middle">pin 7 IN2 ê GPIO27</text>
+  <text x="640" y="295" class="small" text-anchor="middle">pin 8 VCC ê 5V</text>
+  <text x="640" y="315" class="small" text-anchor="middle">pin 9 EN2 ê GPIO12</text>
+  <text x="640" y="335" class="small" text-anchor="middle">pin 10 IN3 ê GPIO33</text>
+  <text x="640" y="355" class="small" text-anchor="middle">pin 11 OUT3 í M1+</text>
+  <text x="640" y="375" class="small" text-anchor="middle">pin 14 OUT4 í M1</text>
+  <text x="640" y="395" class="small" text-anchor="middle">pin 15 IN4 ê GPIO32</text>
+  <text x="640" y="415" class="small" text-anchor="middle">pin 16 VCC2 ê VMOT</text>
+
+  <!-- L293D U2 -->
+  <rect x="520" y="460" width="240" height="340" class="chip"/>
+  <text x="640" y="488" class="label" text-anchor="middle" font-weight="bold">U2  L293D #2</text>
+  <text x="540" y="512" class="small">Back motors (HW2 + HW3)</text>
+  <rect x="580" y="530" width="120" height="240" fill="#0f1624" stroke="#ffb020" rx="4"/>
+  <text x="640" y="555" class="small" text-anchor="middle">pin 1 EN1 ê GPIO25</text>
+  <text x="640" y="575" class="small" text-anchor="middle">pin 2 IN1 ê GPIO18</text>
+  <text x="640" y="595" class="small" text-anchor="middle">pin 3 OUT1 í M2+</text>
+  <text x="640" y="615" class="small" text-anchor="middle">pin 6 OUT2 í M2</text>
+  <text x="640" y="635" class="small" text-anchor="middle">pin 7 IN2 ê GPIO19</text>
+  <text x="640" y="665" class="small" text-anchor="middle">pin 8 VCC ê 5V</text>
+  <text x="640" y="685" class="small" text-anchor="middle">pin 9 EN2 ê GPIO4</text>
+  <text x="640" y="705" class="small" text-anchor="middle">pin 10 IN3 ê GPIO23</text>
+  <text x="640" y="725" class="small" text-anchor="middle">pin 11 OUT3 í M3+</text>
+  <text x="640" y="745" class="small" text-anchor="middle">pin 14 OUT4 í M3</text>
+  <text x="640" y="765" class="small" text-anchor="middle">pin 15 IN4 ê GPIO21</text>
+  <text x="640" y="785" class="small" text-anchor="middle">pin 16 VCC2 ê VMOT</text>
+
+  <!-- Motors -->
+  <ellipse cx="900" cy="180" rx="55" ry="35" class="motor"/>
+  <text x="900" y="175" class="label" text-anchor="middle">M0</text>
+  <text x="900" y="192" class="small" text-anchor="middle">HW0 ∑ FL</text>
+  <ellipse cx="900" cy="300" rx="55" ry="35" class="motor"/>
+  <text x="900" y="295" class="label" text-anchor="middle">M1</text>
+  <text x="900" y="312" class="small" text-anchor="middle">HW1 ∑ FR</text>
+  <ellipse cx="900" cy="550" rx="55" ry="35" class="motor"/>
+  <text x="900" y="545" class="label" text-anchor="middle">M2</text>
+  <text x="900" y="562" class="small" text-anchor="middle">HW2 ∑ BL</text>
+  <ellipse cx="900" cy="670" rx="55" ry="35" class="motor"/>
+  <text x="900" y="665" class="label" text-anchor="middle">M3</text>
+  <text x="900" y="682" class="small" text-anchor="middle">HW3 ∑ BR</text>
+
+  <!-- Signal wires ESP to U1 -->
+  <path class="sig" d="M240 230 L520 230"/>
+  <path class="sig" d="M240 250 L500 250 L500 205 L580 205"/>
+  <path class="sig" d="M240 270 L490 270 L490 225 L580 225"/>
+  <path class="sig" d="M240 300 L520 315"/>
+  <path class="sig" d="M460 320 L520 335"/>
+  <path class="sig" d="M460 340 L520 355"/>
+  <path class="sig" d="M460 370 L520 555"/>
+  <path class="sig" d="M460 390 L500 575 L580 575"/>
+  <path class="sig" d="M460 160 L520 685"/>
+  <path class="sig" d="M460 180 L490 705 L580 705"/>
+  <path class="sig" d="M460 200 L500 765 L580 765"/>
+
+  <!-- U1 to motors -->
+  <path class="sig" d="M700 225 L845 180"/>
+  <path class="sig" d="M700 375 L845 300"/>
+
+  <!-- U2 to motors -->
+  <path class="sig" d="M700 595 L845 550"/>
+  <path class="sig" d="M700 745 L845 670"/>
+
+  <!-- Power rails -->
+  <rect x="40" y="820" width="1120" height="80" class="note"/>
+  <text x="60" y="848" class="label" font-weight="bold">Power rails (all GND tied together)</text>
+  <text x="60" y="872" class="small">=4 5 V (VCC pin 8 on both L293D) ê ESP32 5V / USB ∑ logic supply for L293D inputs</text>
+  <text x="60" y="890" class="small">=‡ VMOT 612 V (VCC2 pin 16 on both L293D) ê separate battery ∑ 100µF cap per chip near pin 16</text>
+
+  <!-- Legend -->
+  <rect x="820" y="100" width="340" height="200" class="note"/>
+  <text x="840" y="128" class="label" font-weight="bold">L293D channel truth table</text>
+  <text x="840" y="152" class="small">IN1=H IN2=L EN=PWM í forward</text>
+  <text x="840" y="172" class="small">IN1=L IN2=H EN=PWM í reverse</text>
+  <text x="840" y="192" class="small">IN1=L IN2=L í coast / stop</text>
+  <text x="840" y="220" class="label" font-weight="bold">Motor spins wrong way?</text>
+  <text x="840" y="240" class="small">Swap motor wires on OUT*, or swap IN1/IN2 in config.h</text>
+  <text x="840" y="268" class="small">Use dashboard Motor ID to map HWícorner</text>
+
+  <!-- Rover top view -->
+  <rect x="820" y="320" width="340" height="200" class="note"/>
+  <text x="990" y="348" class="label" text-anchor="middle" font-weight="bold">Rover top view (default map)</text>
+  <circle cx="920" cy="400" r="28" fill="none" stroke="#00e676" stroke-width="2"/>
+  <text x="920" y="405" class="small" text-anchor="middle">M0 FL</text>
+  <circle cx="1060" cy="400" r="28" fill="none" stroke="#00e676" stroke-width="2"/>
+  <text x="1060" y="405" class="small" text-anchor="middle">M1 FR</text>
+  <circle cx="920" cy="480" r="28" fill="none" stroke="#00e676" stroke-width="2"/>
+  <text x="920" y="485" class="small" text-anchor="middle">M2 BL</text>
+  <circle cx="1060" cy="480" r="28" fill="none" stroke="#00e676" stroke-width="2"/>
+  <text x="1060" y="485" class="small" text-anchor="middle">M3 BR</text>
+  <rect x="970" y="415" width="40" height="50" fill="#141e2e" stroke="#00d4ff" rx="4"/>
+  <text x="990" y="445" class="small" text-anchor="middle">ESP</text>
+  <text x="990" y="510" class="small" text-anchor="middle">ë forward</text>
+</svg>

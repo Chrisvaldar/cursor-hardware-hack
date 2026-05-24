@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>L293D Wiring — ESP32 Rover</title>
+  <style>
+    :root {
+      --bg: #f5f6f8;
+      --card: #fff;
+      --text: #1a1a2e;
+      --muted: #5a6270;
+      --accent: #0066cc;
+      --orange: #c45c00;
+      --green: #0d7a4a;
+      --red: #b00020;
+      --border: #d0d5dd;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px 20px 48px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    h1 { font-size: 1.5rem; margin-bottom: 6px; }
+    .lead { color: var(--muted); margin-bottom: 24px; font-size: 0.95rem; }
+    h2 {
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin: 28px 0 12px;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 6px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+    }
+    th { background: #eef2f7; font-weight: 600; }
+    tr:nth-child(even) td { background: #fafbfc; }
+    code, .mono { font-family: Consolas, "Courier New", monospace; font-size: 0.85em; }
+    .diagram {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: 12px;
+      align-items: center;
+      text-align: center;
+      padding: 20px 0;
+      overflow-x: auto;
+    }
+    @media (max-width: 700px) {
+      .diagram { grid-template-columns: 1fr; }
+      .arrow-h { display: none; }
+    }
+    .block {
+      border: 2px solid var(--accent);
+      border-radius: 10px;
+      padding: 16px;
+      background: #f0f7ff;
+      min-width: 140px;
+    }
+    .block.chip {
+      border-color: var(--orange);
+      background: #fff8f0;
+    }
+    .block.motor {
+      border-color: var(--green);
+      background: #f0faf4;
+      border-radius: 999px;
+      padding: 20px 16px;
+    }
+    .block h3 { font-size: 0.9rem; margin-bottom: 8px; }
+    .block p { font-size: 0.78rem; color: var(--muted); }
+    .arrow-h { font-size: 1.5rem; color: var(--accent); }
+    .rover-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 280px;
+      margin: 16px auto;
+      text-align: center;
+    }
+    .wheel {
+      border: 2px solid var(--green);
+      border-radius: 50%;
+      width: 72px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #f0faf4;
+    }
+    .esp-center {
+      grid-column: 1 / -1;
+      border: 2px solid var(--accent);
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 600;
+      background: #f0f7ff;
+    }
+    .pwr { padding: 8px 12px; border-radius: 6px; margin: 6px 0; font-size: 0.85rem; }
+    .pwr5 { background: #ffeef0; border-left: 4px solid var(--red); }
+    .pwr12 { background: #fff4e6; border-left: 4px solid var(--orange); }
+    .gnd { background: #eef0f3; border-left: 4px solid #666; }
+    ul { margin: 8px 0 0 20px; font-size: 0.9rem; }
+    pre {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.72rem;
+      line-height: 1.45;
+    }
+    .print-hint {
+      margin-top: 24px;
+      padding: 12px 16px;
+      background: #e8f4ea;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: var(--green);
+    }
+    @media print {
+      body { background: white; padding: 12px; }
+      .card { box-shadow: none; break-inside: avoid; }
+      .print-hint { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <h1>ESP32 + 2&times; L293D wiring</h1>
+  <p class="lead">Double-click this file to open in your browser. Matches <code>rover/config.h</code>. Print with Ctrl+P for the bench.</p>
+
+  <h2>Block diagram (one motor channel)</h2>
+  <div class="card diagram">
+    <div class="block">
+      <h3>ESP32 GPIO</h3>
+      <p>IN1, IN2<br>EN (PWM)</p>
+    </div>
+    <div class="arrow-h">&rarr;</div>
+    <div class="block chip">
+      <h3>L293D</h3>
+      <p>Direction + enable<br>OUT1, OUT2</p>
+    </div>
+    <div class="arrow-h">&rarr;</div>
+    <div class="block motor">
+      <h3>DC motor</h3>
+      <p>2 wires</p>
+    </div>
+  </div>
+
+  <h2>Rover layout (default motor map)</h2>
+  <div class="card">
+    <div class="rover-grid">
+      <div class="wheel">M0<br>HW0 FL</div>
+      <div class="wheel">M1<br>HW1 FR</div>
+      <div class="esp-center">ESP32 &nbsp;|&nbsp; U1 front &nbsp; U2 back</div>
+      <div class="wheel">M2<br>HW2 BL</div>
+      <div class="wheel">M3<br>HW3 BR</div>
+    </div>
+    <p style="text-align:center;margin-top:12px;color:var(--muted);font-size:0.85rem">Arrow &uarr; = forward on dashboard</p>
+  </div>
+
+  <h2>Full pin table — ESP32 to L293D</h2>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>HW</th>
+          <th>Wheel</th>
+          <th>Chip</th>
+          <th>L293D pins</th>
+          <th>ESP32 GPIO</th>
+          <th>Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>0</td><td>Right side</td><td>U1</td><td>1 EN1, 2 IN1, 3 OUT1, 6 OUT2, 7 IN2</td><td><code>14</code> EN &nbsp; <code>25</code> IN1 &nbsp; <code>33</code> IN2</td><td>1Y + 2Y motor</td></tr>
+        <tr><td>1</td><td>Left side</td><td>U1</td><td>9 EN2, 10 IN3, 11 OUT3, 14 OUT4, 15 IN4</td><td><code>13</code> EN &nbsp; <code>18</code> IN3 &nbsp; <code>19</code> IN4</td><td>3Y + 4Y motor</td></tr>
+        <tr><td>2</td><td colspan="5" style="color:var(--muted)">Not wired — add 2nd L293D for independent back wheels</td></tr>
+        <tr><td>3</td><td colspan="5" style="color:var(--muted)">Not wired — add 2nd L293D for independent back wheels</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>L293D chip pinout (DIP-16, both U1 and U2)</h2>
+  <div class="card">
+    <pre>
+        ┌─────────────────┐
+  EN1 1 │●               │ 16  VCC2  ← motor battery + (6–12 V)
+  IN1 2 │                 │ 15  IN4   ← ESP32 direction
+ OUT1 3 │     L293D       │ 14  OUT4  → motor wire
+  GND 4 │                 │ 13  GND   → common ground
+  GND 5 │                 │ 12  GND   → common ground
+ OUT2 6 │                 │ 11  OUT3  → motor wire
+  IN2 7 │                 │ 10  IN3   ← ESP32 direction
+  VCC 8 │                 │  9  EN2   ← ESP32 PWM
+        └─────────────────┘
+  Pin 8 VCC  = 5 V logic (from ESP32 5V pin)
+  Pin 16 VCC2 = VMOT (separate battery, NOT from ESP32 3.3V)
+    </pre>
+  </div>
+
+  <h2>Power wiring</h2>
+  <div class="card">
+    <div class="pwr pwr5"><strong>5 V (red)</strong> &mdash; L293D pin <strong>8</strong> on U1 and U2 &larr; ESP32 <strong>5V</strong> pin (USB powered)</div>
+    <div class="pwr pwr12"><strong>VMOT 6&ndash;12 V (orange)</strong> &mdash; L293D pin <strong>16</strong> on U1 and U2 &larr; motor battery + (e.g. 4&times;AA or 2S LiPo through proper BEC)</div>
+    <div class="pwr gnd"><strong>GND (black)</strong> &mdash; L293D pins <strong>4, 5, 12, 13</strong> + ESP32 GND + battery &minus; <strong>all tied together</strong></div>
+    <ul>
+      <li>100 &micro;F capacitor between VCC2 (pin 16) and GND on each L293D, close to the chip</li>
+      <li>Do not power motors from ESP32 3.3 V pin</li>
+      <li><strong>GPIO12</strong> = power LED (on while firmware runs; LED + resistor to GND)</li>
+    </ul>
+  </div>
+
+  <h2>L293D truth table (what the firmware does)</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>IN1</th><th>IN2</th><th>EN (PWM)</th><th>Motor</th></tr></thead>
+      <tbody>
+        <tr><td>LOW</td><td>LOW</td><td>off</td><td>Stop / coast</td></tr>
+        <tr><td>HIGH</td><td>LOW</td><td>PWM</td><td>Forward (speed = duty)</td></tr>
+        <tr><td>LOW</td><td>HIGH</td><td>PWM</td><td>Reverse</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:12px;font-size:0.88rem;color:var(--muted)">Wheel spins backward? Swap the two motor wires on OUT, or swap IN1/IN2 in <code>config.h</code>. Use <strong>dashboard_remote.html</strong> Motor ID to assign HW0&ndash;3 to corners.</p>
+  </div>
+
+  <h2>Wire list (copy for breadboard)</h2>
+  <div class="card">
+    <pre>
+ESP32 GPIO14  ──►  U1 pin 1  (EN1, right side PWM)
+ESP32 GPIO25  ──►  U1 pin 2  (IN1 / 1A)
+ESP32 GPIO33  ──►  U1 pin 7  (IN2 / 2A)
+U1 pin 3,6    ──►  Right side motor (1Y + 2Y)
+
+ESP32 GPIO13  ──►  U1 pin 9  (EN2, left side PWM)
+ESP32 GPIO18  ──►  U1 pin 10 (IN3 / 3A)
+ESP32 GPIO19  ──►  U1 pin 15 (IN4 / 4A)
+U1 pin 11,14  ──►  Left side motor (3Y + 4Y)
+
+ESP32 5V      ──►  U1 pin 8
+Battery +     ──►  U1 pin 16
+ESP32 GND + battery - + L293D GND pins ──► common ground rail
+ESP32 GPIO12  ──►  Power LED (+) → resistor → LED (−) → GND
+    </pre>
+  </div>
+
+  <p class="print-hint">Tip: Press <strong>Ctrl+P</strong> to print this page for your workbench.</p>
+</body>
+</html>
