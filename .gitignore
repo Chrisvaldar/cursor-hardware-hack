@@ -1,0 +1,13 @@
+# Arduino / PlatformIO build artifacts
+.pio/
+.vscode/.pio/
+.vscode/ipch/
+.vscode/.browse.c_cpp.db*
+*.o
+*.elf
+*.bin
+build/
+
+# OS
+.DS_Store
+Thumbs.db
