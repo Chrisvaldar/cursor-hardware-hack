@@ -12,21 +12,21 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug",
-            "executable": "C:/Users/chris/OneDrive/Documents/cursor_hardware_hack/cursor-hardware-hack/.pio/build/freenove_esp32/firmware.elf",
-            "projectEnvName": "freenove_esp32",
+            "executable": "C:/Users/chris/OneDrive/Documents/cursor_hardware_hack/cursor-hardware-hack/.pio/build/servo_test/firmware.elf",
+            "projectEnvName": "servo_test",
             "toolchainBinDir": "C:/Users/chris/.platformio/packages/toolchain-xtensa-esp32/bin",
             "internalConsoleOptions": "openOnSessionStart",
             "preLaunchTask": {
                 "type": "PlatformIO",
-                "task": "Pre-Debug"
+                "task": "Pre-Debug (servo_test)"
             }
         },
         {
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (skip Pre-Debug)",
-            "executable": "C:/Users/chris/OneDrive/Documents/cursor_hardware_hack/cursor-hardware-hack/.pio/build/freenove_esp32/firmware.elf",
-            "projectEnvName": "freenove_esp32",
+            "executable": "C:/Users/chris/OneDrive/Documents/cursor_hardware_hack/cursor-hardware-hack/.pio/build/servo_test/firmware.elf",
+            "projectEnvName": "servo_test",
             "toolchainBinDir": "C:/Users/chris/.platformio/packages/toolchain-xtensa-esp32/bin",
             "internalConsoleOptions": "openOnSessionStart"
         },
@@ -34,8 +34,8 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (without uploading)",
-            "executable": "C:/Users/chris/OneDrive/Documents/cursor_hardware_hack/cursor-hardware-hack/.pio/build/freenove_esp32/firmware.elf",
-            "projectEnvName": "freenove_esp32",
+            "executable": "C:/Users/chris/OneDrive/Documents/cursor_hardware_hack/cursor-hardware-hack/.pio/build/servo_test/firmware.elf",
+            "projectEnvName": "servo_test",
             "toolchainBinDir": "C:/Users/chris/.platformio/packages/toolchain-xtensa-esp32/bin",
             "internalConsoleOptions": "openOnSessionStart",
             "loadMode": "manual"

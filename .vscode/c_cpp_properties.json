@@ -12,6 +12,7 @@
                 "C:/Users/chris/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src",
                 "C:/Users/chris/.platformio/packages/framework-arduinoespressif32/libraries/FS/src",
                 "C:/Users/chris/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src",
+                "C:/Users/chris/OneDrive/Documents/cursor_hardware_hack/cursor-hardware-hack/.pio/libdeps/servo_test/ESP32Servo/src",
                 "C:/Users/chris/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/newlib/platform_include",
                 "C:/Users/chris/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include",
                 "C:/Users/chris/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include/esp_additions/freertos",
@@ -247,6 +248,7 @@
                     "C:/Users/chris/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src",
                     "C:/Users/chris/.platformio/packages/framework-arduinoespressif32/libraries/FS/src",
                     "C:/Users/chris/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src",
+                    "C:/Users/chris/OneDrive/Documents/cursor_hardware_hack/cursor-hardware-hack/.pio/libdeps/servo_test/ESP32Servo/src",
                     "C:/Users/chris/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/newlib/platform_include",
                     "C:/Users/chris/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include",
                     "C:/Users/chris/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include/esp_additions/freertos",
@@ -479,7 +481,6 @@
             "defines": [
                 "PLATFORMIO=60119",
                 "ARDUINO_ESP32_DEV",
-                "CORE_DEBUG_LEVEL=0",
                 "HAVE_CONFIG_H",
                 "MBEDTLS_CONFIG_FILE=\"mbedtls/esp_config.h\"",
                 "UNITY_INCLUDE_CONFIG_H",
